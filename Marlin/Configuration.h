@@ -297,7 +297,7 @@
 // The minimal temperature defines the temperature below which the heater will not be enabled It is used
 // to check that the wiring to the thermistor is not broken.
 // Otherwise this would lead to the heater being powered on all the time.
-#define HEATER_0_MINTEMP 5
+#define HEATER_0_MINTEMP 1
 #define HEATER_1_MINTEMP 5
 #define HEATER_2_MINTEMP 5
 #define HEATER_3_MINTEMP 5
@@ -522,29 +522,20 @@
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
- */
-#ifdef WILSON_TYPE
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 105 }
-#else
-  #ifdef WILSON_II_TYPE
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, MK7_DEFAULT_STEPS }
-  #else
-	#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
-  #endif
-#endif
-
-/**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
  */
 #ifdef WILSON_TYPE
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 105 }
   #define DEFAULT_MAX_FEEDRATE          { 100, 100, 3, 25 }
 #else
   #ifdef WILSON_II_TYPE
-    #define DEFAULT_MAX_FEEDRATE          { 120, 120, 6, 25 }
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, MK7_DEFAULT_STEPS }
+	#define DEFAULT_MAX_FEEDRATE          { 120, 120, 6, 25 }
   #else
-	#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
+	#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
+    #define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
   #endif
 #endif
 
@@ -644,7 +635,7 @@
 //  (0,0)
 #define X_PROBE_OFFSET_FROM_EXTRUDER 0 // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 45 // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -11 // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -12.15 // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 6000
@@ -762,7 +753,7 @@
 
 // @section homing
 
-//#define Z_HOMING_HEIGHT 4  // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
+#define Z_HOMING_HEIGHT 15   // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
