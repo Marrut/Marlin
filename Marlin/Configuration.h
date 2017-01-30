@@ -86,20 +86,37 @@
 // example_configurations/SCARA directory.
 //
 
-// @section info
-//#define WILSON_TYPE // comment this out if not wilson
-#define WILSON_II_TYPE // comment this out if not wilson ii
+/**
+ * @section info
+ */
+ 
+// Comment or uncomment definitions based on your printer.
+//#define WILSON_TYPE
+#define WILSON_II_TYPE
+//#define FIX_MOUNTED_PROBE
+//#define BLTOUCH
+#define MJRICE_BEDLEVELING_RACK // include this (only) if using the rack-and-pinion aparatus for bed probing / leveling
+//#define MJRICE_SERVO
 
 #define MY_BEDLEVELING_DEFAULTS // comment this out to strip out all the bed leveling stuff
-#define MJRICE_BEDLEVELING_RACK // include this (only) if using the rack-and-pinion aparatus for bed probing / leveling
 
 #ifdef MY_BEDLEVELING_DEFAULTS
-  #define AUTO_BED_LEVELING_LINEAR // Delete the comment to enable (remove // at the start of the line)
-#endif
+  #define AUTO_BED_LEVELING_LINEAR
 
-#ifdef MJRICE_BEDLEVELING_RACK
-  #define NO_RETRACT_BETWEEN_PROBINGS
-  #undef SERVO_ENDSTOPS // this option does not use servo
+  #ifdef MJRICE_BEDLEVELING_RACK
+    // We need an end script to put away the probe.
+    #define Z_PROBE_END_SCRIPT "G1 X200 F12000\nG1 X40 Z10 F12000"
+  #elif MJRICE_SERVO
+    #define NUM_SERVOS 3
+	#define Z_ENDSTOP_SERVO_NR 2  // Servo index starts with 0 for M280 command
+    #define Z_SERVO_ANGLES {0,90} // Z Servo Deploy and Stow angles
+    // sometimes the weight of the servo arm and the shaking of he extruder causes the servo to slowly descend during printing until it 
+    // interferes with the print. There are two things I could do.  The first one (not using) just keeps the servo attached all the time.
+    //#define DONT_DETACH_SERVOS  // Dont use this unless you're desperate. If you use this to keep the servos rigidly in place, make sure you are powering the servos from an adequate source (not the arduino 5V regulator)
+    // But this one seems to work nicely, it will just periodically put the servo back to where it is supposed to be:
+	#define PERIODICALLY_REFRESH_SERVO
+    #define SERVO_REFRESH_INTERVAL 10000 // ms
+  #endif
 #endif
 
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
@@ -590,7 +607,7 @@
 // For example an inductive probe, or a setup that uses the nozzle to probe.
 // An inductive probe must be deactivated to go below
 // its trigger-point if hardware endstops are active.
-#define FIX_MOUNTED_PROBE
+//#define FIX_MOUNTED_PROBE
 
 // The BLTouch probe emulates a servo probe.
 // The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below to override.
@@ -621,9 +638,16 @@
 //    |           |
 //    O-- FRONT --+
 //  (0,0)
-#define X_PROBE_OFFSET_FROM_EXTRUDER 0 // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 45 // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -12.15 // Z offset: -below +above  [the nozzle]
+#ifdef MJRICE_BEDLEVELING_RACK
+  #define X_PROBE_OFFSET_FROM_EXTRUDER 0      // X offset: -left  +right  [of the nozzle]
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 45     // Y offset: -front +behind [the nozzle]
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.15 // Z offset: -below +above  [the nozzle]
+#else
+  // for servo mounted z probe
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -54    // Probe on: -left  +right
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -7     // Probe on: -front +behind
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -6     // -below (always!) // mrice: for wilson ts [ jhead use -18 for e3dlite use -7.7 ]
+#endif  
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 6000
@@ -682,7 +706,7 @@
 // To use a probe you must enable one of the two options above!
 
 // Enable Z Probe Repeatability test to see how accurate your probe is
-//#define Z_MIN_PROBE_REPEATABILITY_TEST
+#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -836,7 +860,7 @@
  *   The result is a mesh, best for large or uneven beds.
  */
 //#define AUTO_BED_LEVELING_3POINT
-#define AUTO_BED_LEVELING_LINEAR
+//#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
 
 /**
