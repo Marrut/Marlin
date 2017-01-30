@@ -93,6 +93,8 @@
 // Comment or uncomment definitions based on your printer.
 //#define WILSON_TYPE
 #define WILSON_II_TYPE
+
+// Z probes:
 //#define FIX_MOUNTED_PROBE
 //#define BLTOUCH
 #define MJRICE_BEDLEVELING_RACK // include this (only) if using the rack-and-pinion aparatus for bed probing / leveling
@@ -100,13 +102,14 @@
 
 #define MY_BEDLEVELING_DEFAULTS // comment this out to strip out all the bed leveling stuff
 
-#ifdef MY_BEDLEVELING_DEFAULTS
+#if ENABLED(MY_BEDLEVELING_DEFAULTS)
   #define AUTO_BED_LEVELING_LINEAR
 
-  #ifdef MJRICE_BEDLEVELING_RACK
-    // We need an end script to put away the probe.
-    #define Z_PROBE_END_SCRIPT "G1 X200 F12000\nG1 X40 Z10 F12000"
-  #elif MJRICE_SERVO
+  #if ENABLED(MJRICE_BEDLEVELING_RACK)
+    #define Z_PROBE_SLED // Simply to pass the sanity check.
+	#define SLED_DOCKING_OFFSET 0
+    #define Z_PROBE_END_SCRIPT "G1 X200 F12000\nG1 X40 Z10 F12000" // We need an end script to put away the probe.
+  #elif ENABLED(MJRICE_SERVO)
     #define NUM_SERVOS 3
 	#define Z_ENDSTOP_SERVO_NR 2  // Servo index starts with 0 for M280 command
     #define Z_SERVO_ANGLES {0,90} // Z Servo Deploy and Stow angles
@@ -543,17 +546,15 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
  */
-#ifdef WILSON_TYPE
+#if ENABLED(WILSON_TYPE)
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 105 }
   #define DEFAULT_MAX_FEEDRATE          { 100, 100, 3, 25 }
+#elif ENABLED(WILSON_II_TYPE)
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, MK7_DEFAULT_STEPS }
+  #define DEFAULT_MAX_FEEDRATE          { 120, 120, 6, 25 }
 #else
-  #ifdef WILSON_II_TYPE
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, MK7_DEFAULT_STEPS }
-	#define DEFAULT_MAX_FEEDRATE          { 120, 120, 6, 25 }
-  #else
-	#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
-    #define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
-  #endif
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
+  #define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
 #endif
 
 /**
@@ -650,16 +651,19 @@
 //    |           |
 //    O-- FRONT --+
 //  (0,0)
-#ifdef MJRICE_BEDLEVELING_RACK
+#if ENABLED(MJRICE_BEDLEVELING_RACK)
   #define X_PROBE_OFFSET_FROM_EXTRUDER 0      // X offset: -left  +right  [of the nozzle]
   #define Y_PROBE_OFFSET_FROM_EXTRUDER 45     // Y offset: -front +behind [the nozzle]
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.15 // Z offset: -below +above  [the nozzle]
-#else
-  // for servo mounted z probe
+#elif ENABLED(MJRICE_SERVO)
   #define X_PROBE_OFFSET_FROM_EXTRUDER -54    // Probe on: -left  +right
   #define Y_PROBE_OFFSET_FROM_EXTRUDER -7     // Probe on: -front +behind
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -6     // -below (always!) // mrice: for wilson ts [ jhead use -18 for e3dlite use -7.7 ]
-#endif  
+#else
+  #define X_PROBE_OFFSET_FROM_EXTRUDER 10     // X offset: -left  +right  [of the nozzle]
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 10     // Y offset: -front +behind [the nozzle]
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0      // Z offset: -below +above  [the nozzle]	
+#endif
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 6000
