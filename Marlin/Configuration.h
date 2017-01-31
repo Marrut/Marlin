@@ -107,8 +107,8 @@
 
   #if ENABLED(MJRICE_BEDLEVELING_RACK)
     #define Z_PROBE_SLED // Simply to pass the sanity check.
-	#define SLED_DOCKING_OFFSET 0
-    #define Z_PROBE_END_SCRIPT "G1 X200 F12000\nG1 X40 Z10 F12000" // We need an end script to put away the probe.
+	#define SLED_DOCKING_OFFSET -100
+    #define Z_PROBE_END_SCRIPT "G1 X200 F12000\nG1 X100 F12000" // We need an end script to put away the probe.
   #elif ENABLED(MJRICE_SERVO)
     #define NUM_SERVOS 3
 	#define Z_ENDSTOP_SERVO_NR 2  // Servo index starts with 0 for M280 command
