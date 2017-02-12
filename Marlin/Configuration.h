@@ -630,9 +630,17 @@
 //#define Z_PROBE_SLED
 //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
-//
-// Allen Key Probe is defined in the Delta example configurations.
-//
+// Enable if you have the Rack & Pinion style bed probe (i.e. Wilson II)
+//#define Z_RACK_PINION
+
+#ifdef Z_RACK_PINION
+#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#define Z_CLEARANCE_DEPLOY_PROBE 10
+#define X_PROBE_OFFSET_FROM_EXTRUDER 0     // Probe on: -left  +right
+#define Y_PROBE_OFFSET_FROM_EXTRUDER 45     // Probe on: -front +behind
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -11  // -below (always!) 
+#define Z_SAFE_HOMING // home with probe in middle of bed not on the edge
+#endif
 
 // Z Probe to nozzle (X,Y) offset, relative to (0, 0).
 // X and Y offsets must be integers.
@@ -805,6 +813,10 @@
 // If enabled, axes won't move above MAX_POS in response to movement commands.
 #define MAX_SOFTWARE_ENDSTOPS
 
+#ifdef Z_RACK_PINION
+#define X_MIN_POS 10
+#endif
+
 /**
  * Filament Runout Sensor
  * A mechanical or opto endstop is used to check for the presence of filament.
@@ -890,10 +902,10 @@
   #define ABL_GRID_MAX_POINTS_Y ABL_GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 40
-  #define RIGHT_PROBE_BED_POSITION 160
-  #define FRONT_PROBE_BED_POSITION 80
-  #define BACK_PROBE_BED_POSITION 250
+  #define LEFT_PROBE_BED_POSITION 15
+  #define RIGHT_PROBE_BED_POSITION (X_MAX_POS-30)
+  #define FRONT_PROBE_BED_POSITION (20+Y_PROBE_OFFSET_FROM_EXTRUDER)
+  #define BACK_PROBE_BED_POSITION (Y_MAX_POS-30)
 
   // The Z probe minimum outer margin (to validate G29 parameters).
   #define MIN_PROBE_EDGE 40
@@ -1004,6 +1016,7 @@
 // Homing speeds (mm/m)
 #define HOMING_FEEDRATE_XY (50*60)
 #define HOMING_FEEDRATE_Z  (4*60)
+
 
 //=============================================================================
 //============================= Additional Features ===========================
