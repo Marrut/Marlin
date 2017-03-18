@@ -456,13 +456,10 @@ static_assert(1 >= 0
     + 1
   #endif
   #if ENABLED(Z_RACK_PINION)
-    #define COUNT_PROBE_7 INCREMENT(COUNT_PROBE_6)
-  #else
-    #define COUNT_PROBE_7 COUNT_PROBE_6
+    + 1
   #endif  
-  #if COUNT_PROBE_7 > 1
-    #error "Please enable only one probe: FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z_RACK_PINION."
-  #endif
+  , "Please enable only one probe: FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z_RACK_PINION."
+);
 
 
 #if PROBE_SELECTED
