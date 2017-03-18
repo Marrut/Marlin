@@ -97,19 +97,20 @@
 // Z probes:
 //#define FIX_MOUNTED_PROBE
 //#define BLTOUCH
-#define MJRICE_BEDLEVELING_RACK // include this (only) if using the rack-and-pinion aparatus for bed probing / leveling
+#define Z_RACK_PINION
 //#define MJRICE_SERVO
 
-#define MY_BEDLEVELING_DEFAULTS // comment this out to strip out all the bed leveling stuff
+#define WILSON_DEFAULTS
 
-#if ENABLED(MY_BEDLEVELING_DEFAULTS)
+#if ENABLED(WILSON_DEFAULTS)
   #define AUTO_BED_LEVELING_LINEAR
+  #define NEVER_DISABLE_Z
+  #define MOVE_MENU_PRECISE_MOVE_ITEMS
+  #define EEPROM_SETTINGS
+  #define SDSUPPORT
+  #define REPRAP_DISCOUNT_SMART_CONTROLLER
 
-  #if ENABLED(MJRICE_BEDLEVELING_RACK)
-    #define Z_PROBE_SLED // Simply to pass the sanity check.
-	#define SLED_DOCKING_OFFSET -100
-    #define Z_PROBE_END_SCRIPT "G1 X200 F12000\nG1 X100 F12000" // We need an end script to put away the probe.
-  #elif ENABLED(MJRICE_SERVO)
+  #if ENABLED(MJRICE_SERVO)
     #define NUM_SERVOS 3
 	#define Z_ENDSTOP_SERVO_NR 2  // Servo index starts with 0 for M280 command
     #define Z_SERVO_ANGLES {0,90} // Z Servo Deploy and Stow angles
@@ -168,7 +169,8 @@
 
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
-#ifndef MOTHERBOARD  
+#ifndef MOTHERBOARD
+  //#define MOTHERBOARD BOARD_PICA_REVB	// For the older PICA (board revision is printed on the silkscreen of the PCB).
   #define MOTHERBOARD BOARD_PICA
 #endif
 
@@ -326,11 +328,11 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 250
+#define HEATER_0_MAXTEMP 255
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
-#define BED_MAXTEMP 120
+#define BED_MAXTEMP 140
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -538,7 +540,11 @@
 #define MK7_DEFAULT_STEPS 105
 #define MK8_DEFAULT_STEPS 150
  
-/**
+/** 
+ * GT2 belts with 1/16th stepper driver are typically 80 steps/mm (20T pulley)
+ * MK7 drive gear with 1/16th stepper driver is about 105 steps/mm
+ * 8mm leadscrews with 1/16th stepper driver is normally 400 steps/mm
+ * 
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
@@ -547,10 +553,10 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
  */
 #if ENABLED(WILSON_TYPE)
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 105 }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, MK7_DEFAULT_STEPS }
   #define DEFAULT_MAX_FEEDRATE          { 100, 100, 3, 25 }
 #elif ENABLED(WILSON_II_TYPE)
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, MK7_DEFAULT_STEPS }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 107 }
   #define DEFAULT_MAX_FEEDRATE          { 120, 120, 6, 25 }
 #else
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
@@ -633,13 +639,11 @@
 // Enable if you have the Rack & Pinion style bed probe (i.e. Wilson II)
 //#define Z_RACK_PINION
 
-#ifdef Z_RACK_PINION
-#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-#define Z_CLEARANCE_DEPLOY_PROBE 10
-#define X_PROBE_OFFSET_FROM_EXTRUDER 0     // Probe on: -left  +right
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 45     // Probe on: -front +behind
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -11  // -below (always!) 
-#define Z_SAFE_HOMING // home with probe in middle of bed not on the edge
+#if ENABLED(Z_RACK_PINION)
+  #define X_PROBE_OFFSET_FROM_EXTRUDER 0      // Probe on: -left  +right
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 45     // Probe on: -front +behind
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.15 // -below (always!) 
+  #define Z_SAFE_HOMING                       // home with probe in middle of bed not on the edge
 #endif
 
 // Z Probe to nozzle (X,Y) offset, relative to (0, 0).
@@ -659,19 +663,16 @@
 //    |           |
 //    O-- FRONT --+
 //  (0,0)
-#if ENABLED(MJRICE_BEDLEVELING_RACK)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER 0      // X offset: -left  +right  [of the nozzle]
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 45     // Y offset: -front +behind [the nozzle]
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.15 // Z offset: -below +above  [the nozzle]
-#elif ENABLED(MJRICE_SERVO)
+
+#if ENABLED(MJRICE_SERVO)
   #define X_PROBE_OFFSET_FROM_EXTRUDER -54    // Probe on: -left  +right
   #define Y_PROBE_OFFSET_FROM_EXTRUDER -7     // Probe on: -front +behind
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -6     // -below (always!) // mrice: for wilson ts [ jhead use -18 for e3dlite use -7.7 ]
-#else
-  #define X_PROBE_OFFSET_FROM_EXTRUDER 10     // X offset: -left  +right  [of the nozzle]
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 10     // Y offset: -front +behind [the nozzle]
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0      // Z offset: -below +above  [the nozzle]	
 #endif
+
+//#define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  +right  [of the nozzle]
+//#define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
+//#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 6000
@@ -771,8 +772,6 @@
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
 // @section machine
-#define NEVER_DISABLE_Z
-#define MOVE_MENU_PRECISE_MOVE_ITEMS
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
@@ -813,8 +812,8 @@
 // If enabled, axes won't move above MAX_POS in response to movement commands.
 #define MAX_SOFTWARE_ENDSTOPS
 
-#ifdef Z_RACK_PINION
-#define X_MIN_POS 10
+#if ENABLED(Z_RACK_PINION)
+  #define X_MIN_POS 10
 #endif
 
 /**
@@ -834,6 +833,33 @@
 
 //===========================================================================
 //=============================== Bed Leveling ==============================
+//===========================================================================
+
+//#define MESH_BED_LEVELING    // Enable mesh bed leveling.
+
+#if ENABLED(MESH_BED_LEVELING)
+  #define MESH_INSET 10        // Mesh inset margin on print area
+  #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
+  #define MESH_NUM_Y_POINTS 3
+  #define MANUAL_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
+
+  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
+
+  //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
+
+  #if ENABLED(MANUAL_BED_LEVELING)
+    #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
+  #endif  // MANUAL_BED_LEVELING
+
+  // Gradually reduce leveling correction until a set height is reached,
+  // at which point movement will be level to the machine's XY plane.
+  // The height can be set with M420 Z<height>
+  #define ENABLE_LEVELING_FADE_HEIGHT
+
+#endif  // MESH_BED_LEVELING
+
+//===========================================================================
+//============================ Auto Bed Leveling ============================
 //===========================================================================
 // @section bedlevel
 
@@ -908,7 +934,7 @@
   #define BACK_PROBE_BED_POSITION (Y_MAX_POS-30)
 
   // The Z probe minimum outer margin (to validate G29 parameters).
-  #define MIN_PROBE_EDGE 40
+  #define MIN_PROBE_EDGE 10
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -932,10 +958,10 @@
   // 3 arbitrary points to probe.
   // A simple cross-product is used to estimate the plane of the bed.
   #define ABL_PROBE_PT_1_X 15
-  #define ABL_PROBE_PT_1_Y 180
+  #define ABL_PROBE_PT_1_Y (Y_MAX_POS - 20)
   #define ABL_PROBE_PT_2_X 15
   #define ABL_PROBE_PT_2_Y 20
-  #define ABL_PROBE_PT_3_X 170
+  #define ABL_PROBE_PT_3_X (X_MAX_POS - 30)
   #define ABL_PROBE_PT_3_Y 20
 
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
@@ -996,7 +1022,7 @@
 // For DELTA this is the top-center of the Cartesian print volume.
 //#define MANUAL_X_HOME_POS 0
 //#define MANUAL_Y_HOME_POS 0
-//#define MANUAL_Z_HOME_POS 0
+//#define MANUAL_Z_HOME_POS 0 // Distance between the nozzle to printbed after homing
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
@@ -1006,7 +1032,7 @@
 // - If stepper drivers time out, it will need X and Y homing again before Z homing.
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
 // - Prevent Z homing when the Z probe is outside bed area.
-#define Z_SAFE_HOMING
+//#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
@@ -1032,7 +1058,7 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-#define EEPROM_SETTINGS
+//#define EEPROM_SETTINGS
 
 #if ENABLED(EEPROM_SETTINGS)
   // To disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
@@ -1067,11 +1093,11 @@
 
 // Preheat Constants
 #define PREHEAT_1_TEMP_HOTEND 180
-#define PREHEAT_1_TEMP_BED     50
+#define PREHEAT_1_TEMP_BED     55
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_TEMP_HOTEND 210
-#define PREHEAT_2_TEMP_BED     90
+#define PREHEAT_2_TEMP_BED    100
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 //
@@ -1250,7 +1276,7 @@
 // SD Card support is disabled by default. If your controller has an SD slot,
 // you must uncomment the following option or it won't work.
 //
-#define SDSUPPORT
+//#define SDSUPPORT
 
 //
 // SD CARD: SPI SPEED
@@ -1394,7 +1420,7 @@
 //
 // Note: Usually sold with a white PCB.
 //
-#define REPRAP_DISCOUNT_SMART_CONTROLLER
+//#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
 //
 // GADGETS3D G3D LCD/SD Controller
