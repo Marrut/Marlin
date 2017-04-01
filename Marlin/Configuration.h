@@ -103,11 +103,16 @@
 #define WILSON_DEFAULTS
 
 #if ENABLED(WILSON_DEFAULTS)
+  //#define PROBE_MANUALLY              // The "Manual Probe" provides a means to do "Auto" Bed Leveling without a probe.
   //#define AUTO_BED_LEVELING_3POINT    // Probe 3 points. The result is a single tilted plane. Best for a flat bed.
   #define AUTO_BED_LEVELING_LINEAR    // Probe several points in a grid. The result is a single tilted plane. Best for a flat bed.
   //#define AUTO_BED_LEVELING_BILINEAR  // Probe several points in a grid. The result is a mesh, best for large or uneven beds.
   //#define MESH_BED_LEVELING           // A simplified method of compensating for an uneven bed.
   //#define AUTO_BED_LEVELING_UBL       // A comprehensive bed leveling system that combines features and benefits from previous methods.
+  #if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
+    //#define LCD_BED_LEVELING
+  #endif
+  
   #define NEVER_DISABLE_Z
   #define MOVE_MENU_PRECISE_MOVE_ITEMS
   #define EEPROM_SETTINGS
