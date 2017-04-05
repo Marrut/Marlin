@@ -106,10 +106,10 @@
   //#define AUTO_BED_LEVELING_3POINT    // Probe 3 points. The result is a single tilted plane. Best for a flat bed.
   #define AUTO_BED_LEVELING_LINEAR    // Probe several points in a grid. The result is a single tilted plane. Best for a flat bed.
   //#define AUTO_BED_LEVELING_BILINEAR  // Probe several points in a grid. The result is a mesh, best for large or uneven beds.
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR) 
+    #define ABL_BILINEAR_SUBDIVISION  // Synthesizes intermediate points to produce a more detailed mesh. 
+  #endif 
   //#define MESH_BED_LEVELING           // A simplified method of compensating for an uneven bed.
-  //#define AUTO_BED_LEVELING_UBL       // A comprehensive bed leveling system that combines features and benefits from previous methods.
-  #define NEVER_DISABLE_Z
-  #define MOVE_MENU_PRECISE_MOVE_ITEMS
   #define EEPROM_SETTINGS
   #define SDSUPPORT
   #define REPRAP_DISCOUNT_SMART_CONTROLLER
@@ -805,9 +805,6 @@
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
-#define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
-#define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
-
 // @section machine
 #if ENABLED(Z_RACK_PINION)
   #define Z_RACK_OFFSET 10
@@ -823,10 +820,8 @@
 #define Y_MAX_POS 300
 #define Z_MAX_POS 200
 
-// If enabled, axes won't move below MIN_POS in response to movement commands.
-#define MIN_SOFTWARE_ENDSTOPS
-// If enabled, axes won't move above MAX_POS in response to movement commands.
-#define MAX_SOFTWARE_ENDSTOPS
+#define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS. 
+#define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths. 
 
 /**
  * Filament Runout Sensor
@@ -856,33 +851,6 @@
   #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
-
-  //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
-
-  #if ENABLED(MANUAL_BED_LEVELING)
-    #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
-  #endif  // MANUAL_BED_LEVELING
-
-  // Gradually reduce leveling correction until a set height is reached,
-  // at which point movement will be level to the machine's XY plane.
-  // The height can be set with M420 Z<height>
-  #define ENABLE_LEVELING_FADE_HEIGHT
-
-#endif  // MESH_BED_LEVELING
-
-//===========================================================================
-//============================ Auto Bed Leveling ============================
-//===========================================================================
-
-//#define MESH_BED_LEVELING    // Enable mesh bed leveling.
-
-#if ENABLED(MESH_BED_LEVELING)
-  #define MESH_INSET 10        // Mesh inset margin on print area
-  #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
-  #define MESH_NUM_Y_POINTS 3
-  #define MANUAL_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
-
-  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
 
   //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
 
